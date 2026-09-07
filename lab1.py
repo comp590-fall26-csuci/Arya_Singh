@@ -1,9 +1,12 @@
-def fibonacci_iterative(count, filename):
-	first = 0
-	second = 1
+def fibonacci_recursive(number):
+	if number <= 1:
+		return number
+	return fibonacci_recursive(number-1) + fibonacci_recursive(number-2)
 
+def write_fibonacci(count, filename):
 	with open(filename, "w") as output_file:
-		for _ in range(count):
-			output_file.write(str(first) + "\n")
-			first, second = second, first+second
-fibonacci_iterative(25, "output/fibonacci.txt")
+		for number in range(count):
+			value = fibonacci_recursive(number)
+			output_file.write(str(value) + "\n")
+
+write_fibonacci(25, "output/fibonacci.txt")
