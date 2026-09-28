@@ -1,2 +1,6 @@
 output/*
 !output/.gitkeep
+lab3/venv/
+lab3/fibonacci_program
+__pycache__/
+*.pyc
