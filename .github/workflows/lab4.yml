@@ -1,0 +1,44 @@
+name: Lab 4 CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  c-build-test:
+    name: Lab 4 C checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build Lab 3 C program
+        working-directory: lab3
+        run: |
+          make clean
+          make
+
+      - name: Run program and verify output
+        working-directory: lab3
+        shell: bash
+        run: |
+          output="$(./fibonacci_program)"
+          echo "$output"
+
+          grep -Fq "55" <<< "$output"
+          grep -Fq "1.618034" <<< "$output"
+
+          echo "Fibonacci value 55 verified"
+          echo "Golden ratio value 1.618034 verified"
+
+      - name: Clean build files
+        working-directory: lab3
+        run: make clean
