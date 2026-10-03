@@ -20,7 +20,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build Lab 3 C program
+      - name: Build program and tests
         working-directory: lab3
         run: |
           make clean
@@ -36,8 +36,9 @@ jobs:
           grep -Fq "55" <<< "$output"
           grep -Fq "1.618034" <<< "$output"
 
-          echo "Fibonacci value 55 verified"
-          echo "Golden ratio value 1.618034 verified"
+      - name: Run all unit tests
+        working-directory: lab3
+        run: make test
 
       - name: Clean build files
         working-directory: lab3
