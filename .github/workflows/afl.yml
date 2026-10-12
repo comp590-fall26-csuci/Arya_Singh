@@ -1,0 +1,81 @@
+name: AFL++ Fuzzing
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  afl-fuzz:
+    name: AFL++ three-minute fuzz test
+    runs-on: ubuntu-latest
+
+    # This job is informational and must not block merging.
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install AFL++
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y afl++ clang
+
+      - name: Compile dvcp with AFL++ instrumentation
+        run: |
+          afl-clang-fast \
+            -g \
+            -O1 \
+            -o dvcp-afl \
+            lab3/590MakefileLab/dvcp.c
+
+      - name: Create initial input corpus
+        run: |
+          mkdir -p afl-input
+          mkdir -p afl-output
+          dd if=/dev/zero of=afl-input/seed.img bs=24 count=1
+
+      - name: Run AFL++ for three minutes
+        continue-on-error: true
+        env:
+          AFL_SKIP_CPUFREQ: "1"
+          AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES: "1"
+          AFL_NO_UI: "1"
+        shell: bash
+        run: |
+          set +e
+
+          timeout --signal=INT 180s \
+            afl-fuzz \
+            -i afl-input \
+            -o afl-output \
+            -- ./dvcp-afl @@
+
+          status=$?
+
+          echo "AFL++ finished with status: $status"
+
+          if [ "$status" -eq 124 ] || [ "$status" -eq 130 ]; then
+            echo "AFL++ completed the required three-minute fuzzing period."
+            exit 0
+          fi
+
+          exit "$status"
+
+      - name: Display AFL++ findings
+        if: always()
+        shell: bash
+        run: |
+          echo "AFL++ output directories:"
+          find afl-output -maxdepth 3 -type d -print 2>/dev/null || true
+
+          echo "Crash files found:"
+          find afl-output -path "*/crashes/*" -type f \
+            ! -name README.txt -print 2>/dev/null || true
+
+          echo "Hang files found:"
+          find afl-output -path "*/hangs/*" -type f \
+            -print 2>/dev/null || true
