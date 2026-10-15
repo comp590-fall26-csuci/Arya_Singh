@@ -3,19 +3,32 @@ CFLAGS = -Wall -Wextra -std=c11
 LDLIBS = -lm
 
 SOURCE_DIR = 590MakefileLab
+INCLUDE_DIR = $(SOURCE_DIR)/headers
+
 TARGET = fibonacci_program
-SOURCES = $(SOURCE_DIR)/main.c $(SOURCE_DIR)/fibonacci.c
-HEADER = $(SOURCE_DIR)/headers/fibonacci.h
+TEST_TARGET = fibonacci_tests
 
-all: $(TARGET)
+PROGRAM_SOURCES = $(SOURCE_DIR)/main.c $(SOURCE_DIR)/fibonacci.c
+TEST_SOURCES = $(SOURCE_DIR)/test_fibonacci.c $(SOURCE_DIR)/fibonacci.c
 
-$(TARGET): $(SOURCES) $(HEADER)
-	$(CC) $(CFLAGS) -I$(SOURCE_DIR)/headers $(SOURCES) -o $(TARGET) $(LDLIBS)
+PROGRAM_HEADERS = $(INCLUDE_DIR)/fibonacci.h
+TEST_HEADERS = $(PROGRAM_HEADERS) $(INCLUDE_DIR)/utest.h
+
+all: $(TARGET) $(TEST_TARGET)
+
+$(TARGET): $(PROGRAM_SOURCES) $(PROGRAM_HEADERS)
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) $(PROGRAM_SOURCES) -o $(TARGET) $(LDLIBS)
+
+$(TEST_TARGET): $(TEST_SOURCES) $(TEST_HEADERS)
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) $(TEST_SOURCES) -o $(TEST_TARGET) $(LDLIBS)
 
 run: $(TARGET)
 	./$(TARGET)
 
-clean:
-	rm -f $(TARGET)
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
 
-.PHONY: all run clean
+clean:
+	rm -f $(TARGET) $(TEST_TARGET)
+
+.PHONY: all run test clean
