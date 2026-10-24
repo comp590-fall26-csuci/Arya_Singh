@@ -36,6 +36,8 @@ jobs:
           grep -Fq "55" <<< "$output"
           grep -Fq "1.618034" <<< "$output"
 
+          echo "Verified Fibonacci output: 55"
+          echo "Verified golden ratio output: 1.618034"
       - name: Run all unit tests
         working-directory: lab3
         run: make test
@@ -43,3 +45,19 @@ jobs:
       - name: Clean build files
         working-directory: lab3
         run: make clean
+
+  semgrep:
+    name: Semgrep Community Edition
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Semgrep Community Edition
+        run: pipx install semgrep
+
+      - name: Run Semgrep scan
+        run: semgrep scan --config auto .
