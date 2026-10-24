@@ -20,7 +20,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build Lab 3 C program
+      - name: Build program and tests
         working-directory: lab3
         run: |
           make clean
@@ -38,6 +38,9 @@ jobs:
 
           echo "Verified Fibonacci output: 55"
           echo "Verified golden ratio output: 1.618034"
+      - name: Run all unit tests
+        working-directory: lab3
+        run: make test
 
       - name: Clean build files
         working-directory: lab3
