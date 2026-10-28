@@ -1,0 +1,23 @@
+---
+- name: Configure the Lab6 Debian VM
+  hosts: lab6
+  tasks:
+    - name: Install Asciinema with pipx
+      ansible.builtin.command:
+        cmd: pipx install asciinema
+        creates: "{{ ansible_env.HOME }}/.local/bin/asciinema"
+    - name: Install apache2
+      become: true
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+        update_cache: true
+    - name: Enable and start Apache2
+      become: true
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: true
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg: Lab6 is complete. Asciinema is installed with pipx and Apache2 is enabled and running.
