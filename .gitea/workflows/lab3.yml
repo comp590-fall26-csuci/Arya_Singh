@@ -1,0 +1,31 @@
+name: Build and Run Lab3
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: lab7-host
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Lab3
+        run: |
+          make -C lab3 clean
+          make -C lab3
+
+      - name: Run Lab3 program
+        run: ./lab3/fibonacci_program
+
+      - name: Verify Lab3 output
+        run: |
+          ./lab3/fibonacci_program > /tmp/lab3-output.txt
+          cat /tmp/lab3-output.txt
+          grep -q "55" /tmp/lab3-output.txt
+          grep -q "1.618034" /tmp/lab3-output.txt
+
+      - name: Clean Lab3
+        run: make -C lab3 clean
